@@ -8,13 +8,17 @@ minimal gitpod test
 yarn
 yarn deps
 yarn server
-curl localhost:8080
+curl localhost:8080 (you can also curl an IP address)
 or
 telnet localhost 8080
 then you can input get request manually
 ```
 
 ```
+emacs -nw (tutorial has things)
+```
+
+```
 Installing programs with this docker
-need to update Dockerfile > push to github > reopen (Doesn't seem to have worked)
+need to update Dockerfile > push to github > stop and restart the workspace
 ```
