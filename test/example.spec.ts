@@ -1,6 +1,8 @@
 import "mocha"
 import { expect } from "chai"
 import { Example } from "../src/example";
+import { List } from "../src/list";
+
 
 describe("Example", () => {
   it("Can add 2 numbers", done => {
@@ -9,4 +11,12 @@ describe("Example", () => {
       expect(result).to.be.equal(3)
     done()
   })
+
+describe("List", () => {
+  it("can be created", done => {
+      let example:List = new List()
+      expect(example).to.be(List())
+    done()
+  })
+
 })
