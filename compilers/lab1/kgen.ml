@@ -38,10 +38,10 @@ let rec gen_cond e tlab flab =
         SEQ [gen_expr e; CONST 0; JUMPC (Neq, tlab); JUMP flab]
 
 (* |gen_stmt| -- generate code for a statement *)
-let rec gen_stmt s =
+let rec gen_stmt s exit_label =
   match s with
       Skip -> NOP
-    | Seq stmts -> SEQ (List.map gen_stmt stmts)
+    | Seq stmts -> SEQ (List.map (fun n->gen_stmt n exit_label) stmts)
     | Assign (v, e) ->
         SEQ [LINE v.x_line; gen_expr e; STGW v.x_lab]
     | Print e ->
@@ -50,15 +50,30 @@ let rec gen_stmt s =
         SEQ [CONST 0; GLOBAL "lib.newline"; PCALL 0]
     | IfStmt (test, thenpt, elsept) ->
         let lab1 = label () and lab2 = label () and lab3 = label () in
-        SEQ [gen_cond test lab1 lab2; 
-          LABEL lab1; gen_stmt thenpt; JUMP lab3;
-          LABEL lab2; gen_stmt elsept; LABEL lab3]
+        SEQ [gen_cond test lab1 lab2;
+          LABEL lab1; gen_stmt thenpt exit_label; JUMP lab3;
+          LABEL lab2; gen_stmt elsept exit_label; LABEL lab3]
     | WhileStmt (test, body) ->
         let lab1 = label () and lab2 = label () and lab3 = label () in
-        SEQ [JUMP lab2; LABEL lab1; gen_stmt body; 
+        SEQ [JUMP lab2; LABEL lab1; gen_stmt body exit_label;
           LABEL lab2; gen_cond test lab1 lab3; LABEL lab3]
+    | RepeatStmt (test, body) ->
+        let lab1 = label () and lab2 = label () in
+        SEQ [LABEL lab1; gen_stmt body exit_label;
+           gen_cond test lab2 lab1; LABEL lab2]
+    | ExitStmt ->
+        SEQ [JUMP exit_label]
+    | LoopStmt (body) ->
+        let lab1 = label () and exit_lab = label () in
+        SEQ [LABEL lab1; gen_stmt body exit_lab;
+           JUMP lab1; LABEL exit_lab]
+
+(* |start_stmt| -- give the code generator a label for the end of the function *)
+let start_stmt s =
+    let lab1 = label () in
+    SEQ [gen_stmt s lab1; LABEL lab1]
 
 (* |translate| -- generate code for the whole program *)
 let translate (Program ss) =
-  let code = gen_stmt ss in
+  let code = start_stmt ss in
   Keiko.output (if !optflag then Peepopt.optimise code else code)

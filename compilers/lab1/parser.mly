@@ -1,7 +1,7 @@
 /* lab1/parser.mly */
 /* Copyright (c) 2017 J. M. Spivey */
 
-%{ 
+%{
 open Keiko
 open Tree
 %}
@@ -13,7 +13,7 @@ open Tree
 /* punctuation and keywords */
 %token                  SEMI DOT COLON LPAR RPAR COMMA MINUS VBAR
 %token                  ASSIGN EOF BADTOK
-%token                  BEGIN DO ELSE END IF THEN WHILE PRINT NEWLINE
+%token                  BEGIN DO ELSE END IF THEN WHILE REPEAT UNTIL EXIT LOOP PRINT NEWLINE
 
 %type <Tree.program>    program
 
@@ -21,29 +21,35 @@ open Tree
 
 %%
 
-program :       
+program :
     BEGIN stmts END DOT                 { Program $2 } ;
 
-stmts : 
+stmts :
     stmt_list                           { seq $1 } ;
 
 stmt_list :
     stmt                                { [$1] }
   | stmt SEMI stmt_list                 { $1 :: $3 } ;
 
-stmt :  
+
+
+stmt :
     /* empty */                         { Skip }
   | name ASSIGN expr                    { Assign ($1, $3) }
   | PRINT expr                          { Print $2 }
   | NEWLINE                             { Newline }
   | IF expr THEN stmts END              { IfStmt ($2, $4, Skip) }
   | IF expr THEN stmts ELSE stmts END   { IfStmt ($2, $4, $6) }
-  | WHILE expr DO stmts END             { WhileStmt ($2, $4) } ;
- 
+  | WHILE expr DO stmts END             { WhileStmt ($2, $4) }
+  | REPEAT stmts UNTIL expr             { RepeatStmt ($4, $2) }
+  | EXIT                                { ExitStmt }
+  | LOOP stmts END                      { LoopStmt ($2) } ;
+
+
 expr :
     simple                              { $1 }
   | expr RELOP simple                   { Binop ($2, $1, $3) } ;
-    
+
 simple :
     term                                { $1 }
   | simple ADDOP term                   { Binop ($2, $1, $3) }

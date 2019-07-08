@@ -3,7 +3,7 @@
 
 {
 open Lexing
-open Tree 
+open Tree
 open Keiko
 open Parser
 
@@ -17,11 +17,14 @@ let make_hash n ps =
   t
 
 (* |kwtable| -- a little table to recognize keywords *)
-let kwtable = 
+let kwtable =
   make_hash 64
-    [ ("begin", BEGIN); ("do", DO); ("if", IF ); ("else", ELSE); 
-      ("end", END); ("then", THEN); ("while", WHILE); ("print", PRINT);
-      ("newline", NEWLINE); ("and", MULOP And); ("div", MULOP Div); 
+    [ ("begin", BEGIN); ("do", DO); ("if", IF ); ("else", ELSE);
+      ("end", END); ("then", THEN); ("while", WHILE);
+      ("repeat", REPEAT); ("until", UNTIL);
+      ("loop", LOOP); ("exit", EXIT);
+      ("print", PRINT);
+      ("newline", NEWLINE); ("and", MULOP And); ("div", MULOP Div);
       ("or", ADDOP Or); ("not", MONOP Not); ("mod", MULOP Mod);
       ("true", NUMBER 1); ("false", NUMBER 0) ]
 
@@ -29,18 +32,18 @@ let kwtable =
 let idtable = Hashtbl.create 64
 
 (* |lookup| -- convert string to keyword or identifier *)
-let lookup s = 
-  try Hashtbl.find kwtable s with 
-    Not_found -> 
+let lookup s =
+  try Hashtbl.find kwtable s with
+    Not_found ->
       Hashtbl.replace idtable s ();
       IDENT s
 
 (* |get_vars| -- get list of identifiers in the program *)
-let get_vars () = 
+let get_vars () =
   Hashtbl.fold (fun k () ks -> k::ks) idtable []
 }
 
-rule token = 
+rule token =
   parse
       ['A'-'Z''a'-'z']['A'-'Z''a'-'z''0'-'9''_']* as s
                         { lookup s }
@@ -69,7 +72,7 @@ rule token =
     | _                 { BADTOK }
     | eof               { EOF }
 
-and comment = 
+and comment =
   parse
       "*)"              { () }
     | "\n"              { incr lineno; Source.note_line !lineno lexbuf;
