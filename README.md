@@ -41,3 +41,15 @@ convenient way to add commit message
 ```
 git commit -m'commit message'
 ```
+
+#running haskell with ghc#
+interactive
+```
+stack ghci
+import Data.Char
+```
+compile and run an executable
+```
+stack ghc -- filename.hs
+./filename
+```

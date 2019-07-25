@@ -55,13 +55,60 @@ int *filter(int (*pred)(int), const int *src) {
   return head;
 }
 
-//foreach apply functoin to array in place
+/**
+ *  Applies a function to a zero terminated list of integers (in place).
+ */
+int *foreach(int (*pred)(int), int *src) {
+  int *head = src;
+  while ((*src)) {
+    *src = (*pred)(*src);
+    src++;
+  }
+  return head;
+}
+
+int addone(int num) {
+  return num + 1;
+}
+
+int sub(int a, int b) {
+  return a - b;
+}
+
+int foldr(int (*binop)(int, int), int init, int* list) {
+  if (!*list){
+      return init;
+  }
+    int head=*list++;
+    return binop(head, foldr(binop, init, list));
+}
+
+int foldl(int (*binop)(int, int), int init, int* list) {
+  if (!*list){
+      return init;
+  }
+    int head=*list++;
+    return foldl(binop, binop(init, head), list);
+}
+
+//functoin take two pointers to ints
+
+int f(int *a, int *b){
+    *a = 0;
+    *b = 1;
+    return *a;
+}
+
+
 
 int main() {
   char *orig = "123456789";
   char *copy = malloc(200);
   int intlist[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
   int *pointto = &intlist[0];
+
+  int *pointer1 = &intlist[0];
+  int *pointer2 = &intlist[0];
 
   printf("Orig: %s\n", orig);
   printf("Length: %d\n", mystrlen(orig));
@@ -73,4 +120,11 @@ int main() {
   printf("\nlength of intlist before filter %d\n", intarrlen(pointto));
   printintlist(filter(isEven, pointto));
   printf("length after filter %d\n", intarrlen(filter(isEven, pointto)));
+  printintlist(foreach(addone, pointto));
+  int a,b = 9;
+  printf("\n function f returns %d\n", f(&a, &b));
+  printf("foldr subtracting 2-10 %d\n", foldr(sub, 0, pointto));
+  printf("foldl subtracting 2-10 %d\n", foldl(sub, 0, pointto));
+
+
 }
