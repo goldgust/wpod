@@ -10,4 +10,8 @@ RUN sudo apt-get update \
  && sudo apt-get install ocaml-nox -y \
  && sudo rm -rf /var/lib/apt/lists/*
 
-RUN curl -sSL https://get.haskellstack.org/ | sh
+#haskell
+USER gitpod
+RUN curl -sSL https://get.haskellstack.org/ | sh \
+ && stack setup
+USER root
