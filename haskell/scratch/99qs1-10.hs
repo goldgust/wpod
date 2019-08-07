@@ -4,7 +4,7 @@ where
 --1
 myLast [] = error "list too short"
 myLast (x:[]) = x
-myLast (x:xs) = myLast xs
+myLast (_:xs) = myLast xs
 
 --2
 myButLast [] = error "list too short"
@@ -18,7 +18,7 @@ elementAt n (_:xs) = elementAt (n-1) xs
 
 --4
 myLength [] = 0
-myLength (x:xs) = (myLength xs) + 1
+myLength (_:xs) = (myLength xs) + 1
 
 --5
 myReverse a = myReverse' a []
@@ -28,9 +28,7 @@ myReverse a = myReverse' a []
 
 --6
 
-isPalindrome' [] [] = True
-isPalindrome' (x:xs) (y:ys) = (x==y) && isPalindrome' xs ys
-isPalindrome x = isPalindrome' x (myReverse x)
+isPalindrome x = x == (myReverse x)
 
 --7 (not completed)
 --this is copied almost exactly from the answers
